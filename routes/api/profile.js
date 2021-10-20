@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require('../../middleware/auth');
 const {check, validationResult} = require('express-validator');
 
-const Profile = require('../../models/profile');
+const Profile = require('../../models/Profile');
 const User = require('../../models/User');
 
 // @router GET api/profile/me
@@ -13,6 +13,7 @@ const User = require('../../models/User');
 router.get('/me', auth, async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.user.id }).populate('user', ['name', 'avatar']);
+    console.log(req.user.id);
 
     if(!profile){
       return res.status(400).json({ msg: 'There is no profile for this user' });
@@ -32,9 +33,7 @@ router.get('/me', auth, async (req, res) => {
 
 router.post('/', auth, 
   check('status', 'Status is required').not().isEmpty(),
-  check('skills', 'Skills is required').not().isEmpty()
-
-  , async(req, res) => {
+  check('skills', 'Skills is required').not().isEmpty(), async(req, res) => {
   const errors = validationResult(req);
   if(!errors.isEmpty()){
     return res.status(400).json({ errors: errors.array() });
@@ -79,14 +78,14 @@ router.post('/', auth,
 
   try {
     let profile = await Profile.findOne({ user: req.user.id });
-    //console.log(profile);
+    console.log(req.user.id);
 
     if(profile){
       // Update
       profile = await Profile.findOneAndUpdate(
         { user: req.user.id },
         { $set: profileFields },
-        { new: true, upsert: true }
+        { new: true, upsert: true}
       );
       return res.send(profile);
     } 
